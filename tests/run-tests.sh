@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# tests the feature 'remapuser during startup' feature
+################################################################################
+#
+# tests the 'remapuser during startup' feature
 #
 # (*) must be run as root to generate test dirs and files with different users
 # (*) must run from within tests directory
 # (*) to get just the test results: sudo ./run-tests.sh > /dev/null
+#
+#-------------------------------------------------------------------------------
 #
 # The MIT License (MIT)
 #
@@ -27,6 +31,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+################################################################################
 if [ "$(id -u)" != "0" ]; then
    echo "[ERROR] $0 must be run as root" 1>&2
    exit 1
