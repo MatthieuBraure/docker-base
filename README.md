@@ -12,9 +12,11 @@ You can use it as a base for your own Docker images.
 
 sys42/docker-base is available for pulling from [the Docker registry](https://hub.docker.com/r/sys42/docker-base/)!
 
-_If you are wondering:_ No, I haven't done all that work, but the talented people from [Phusion](https://www.phusionpassenger.com/) have done it. 
+-----------------------------------------------------------------------
 
-But [Their base image](https://github.com/phusion/baseimage-docker) has at least for me exactly two drawbacks:
+**If you are wondering:** No, I haven't done all that work, but the talented people from [Phusion](https://www.phusionpassenger.com/) have done it. 
+
+But [Their base image](https://github.com/phusion/baseimage-docker) has - at least for me - exactly two drawbacks:
 
   1. It doesn't come with an integrated default user.
   2. It doesn't provide a mechanism to remap the uid/gid of an internal user to match the uid/gid of an external user.
@@ -39,7 +41,7 @@ gid      | 9999
 password | -- none set ---
 home dir | /home/app
 
-example usage:
+**example usage:**
 
 ```shell
 ## starts a container in interactive mode and removes it when done 
@@ -77,18 +79,18 @@ docker run -ti --rm -v "$(pwd):/project" a-cool-builder-image:1.0.0 \
 
 Voila! Mission accomplished. 
 
-**IMPORTANT NOTE:***
+**IMPORTANT NOTE:**
 
 The re-mapping feature is based on command `usermod`. This command automatically remaps files in the home directory and below which belongs to the user to match the new uid. This can lead to very unexpected file modifications when you mount external volumes below the home directory!
 
-Of course its not very likely that files get modified, because the internal user app has a uid of 9999 (normally not used). But for different setups of the host this may become problematic.
+Of course its not very likely that files get modified, because the internal user app has an uid of 9999 by default (normally not used). But for different setups of the host this may become problematic.
 
-**LESSION LEARNED:** Never ever mount external volumes into (below) a directory!
+**LESSION LEARNED:** Never ever mount external volumes into (below) a home directory! (better to be on the safe side ;)
 
 
 ### Testing
 
-To test the remapping feature (and implicit also the default user) there is a script in the tests folder called `run-tests.sh`. To execute the tests the script needs root priviledges, because it generates files and directories for different users.
+To test the remapping feature (and implicit also the default user) there is a script in the tests folder called `run-tests.sh`. To execute the tests the script needs root priviledges, because it generates files and directories for different users including root itself.
 
 ```shell
 ## must be executed from within tests directory
