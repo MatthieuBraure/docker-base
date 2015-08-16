@@ -58,8 +58,8 @@ groupmod -g $3 "$1"       >/dev/null 2>&1
 usermod  -u $2 -g $3 "$1" >/dev/null 2>&1
 
 ## -xdev is important to prevent find from processing mounts
-find / -xdev -mount \( -uid $OLDUID -exec chown -v -h $2 {} \; \) , \
-                    \( -gid $OLDGID -exec chgrp -v -h $3 {} \; \)
+find / -xdev -mount \( -uid $OLDUID -exec chown -h $2 {} \; \) , \
+                    \( -gid $OLDGID -exec chgrp -h $3 {} \; \)
 
 GIVEN_UNAME="$1"
 shift 3
