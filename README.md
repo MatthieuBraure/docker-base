@@ -1,8 +1,8 @@
 # A minimal Ubuntu base image modified for EVEN MORE Docker-friendliness
 
-[![](https://badge.imagelayers.io/phusion/baseimage:0.9.17.svg)](https://imagelayers.io/?images=phusion/baseimage:latest 'Get your own badge on imagelayers.io')
+[![](https://badge.imagelayers.io/sys42/docker-base:latest.svg)](https://imagelayers.io/?images=sys42/docker-base:latest 'Get your own badge on imagelayers.io')
 
-sys42/docker-base is a special [Docker](https://www.docker.com) image that is configured for correct use within Docker containers. It is Ubuntu, plus:
+**sys42/docker-base** is a special [Docker](https://www.docker.com) image that is configured for correct use within Docker containers. It is Ubuntu, plus:
 
  * Modifications for Docker-friendliness.
  * Administration tools that are especially useful in the context of Docker.
