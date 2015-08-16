@@ -1,0 +1,65 @@
+#!/bin/sh
+
+################################################################################
+#
+# USAGE: /sbin/remapuser NEW-UID NEW-GUID comands ....
+#
+# (*) remaps user app to given UID/GID
+# (*) remaps all files belonging to group app and user app to the new ids
+# (*) executes /sbin/setuser app with rest of commandline params
+#
+# IMPORTANT NOTE: 
+#
+# This script calls usermod which changes files in the home directory with the 
+# old uid AUTOMATICALLY to the new uid. Be aware that when you mount an external
+# volume there and it matches the old uid (9999) this files will be changed!
+#
+# Lesson learned: NEVER ever use external mount points below $HOME
+#
+#-------------------------------------------------------------------------------
+#
+# The MIT License (MIT)
+#
+# Copyright (c) 2015 Tom Nussbaumer <thomas.nussbaumer@gmx.net>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+################################################################################
+
+if [ "$(id -u)" != "0" ]; then
+   echo "[ERROR] $0 must be run as root" 1>&2
+   exit 1
+elif [ $# -lt 3 ]; then
+   echo "[USAGE] $0 NEW-UID NEW-GID command(s)" 1>&2
+   exit 2
+fi
+export OLDUID=$(id -u app)
+export OLDGID=$(id -g app)
+
+echo "remapuser: $OLDUID:$OLDGID -> $1:$2" 
+
+groupmod -g $2 app       >/dev/null 2>&1
+usermod  -u $1 -g $2 app >/dev/null 2>&1
+
+## -xdev is important to prevent find from processing mounts
+find / -xdev -mount \( -uid $OLDUID -exec chown -v -h $1 {} \; \) , \
+                    \( -gid $OLDGID -exec chgrp -v -h $2 {} \; \)
+
+shift 2
+exec setuser app "$@"
+
