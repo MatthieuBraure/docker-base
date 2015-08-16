@@ -77,7 +77,7 @@ ls -lan
 #                  by UID 9999. This files will be automatically changed to the
 #                  new user by the system when calling 'usermod -u'
 docker run -ti --rm -v "$TESTDIR:/test" "$(cat '../../REPO_AND_VERSION')" \
-       /sbin/my_init -- /sbin/remapuser $OUID $OGID \
+       /sbin/my_init -- /sbin/remapuser app $OUID $OGID \
        bash -c 'echo "### internal user:"; id; cd /test; echo "### content after mount:"; ls -lan; rm -rf *; echo "### content after rm:"; ls -lan'
 
 echo "### after docker run:"

@@ -16,4 +16,4 @@
 #
 ###############################################################################
 docker run -ti --rm "$@" $(cat REPO_AND_VERSION) \
-       /sbin/my_init -- /sbin/remapuser $(id -u) $(id -g) bash 
+       /sbin/my_init -- /sbin/remapuser app $(id -u) $(id -g) bash 
