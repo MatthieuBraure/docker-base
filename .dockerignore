@@ -1,1 +1,6 @@
+.git/*
 tests
+*.md
+*.sh
+LICENSE
+REPO_AND_VERSION
