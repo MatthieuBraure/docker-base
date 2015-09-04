@@ -43,25 +43,35 @@
 #
 ################################################################################
 
-if [ "$(id -u)" != "0" ]; then
-   echo "[ERROR] $0 must be run as root" 1>&2
-   exit 1
-elif [ $# -lt 4 ]; then
-   echo "[USAGE] $0 USERNAME NEW-UID NEW-GID command(s)" 1>&2
-   exit 2
-fi
+# exit on exitcode != 0
+set -e
+
+err_and_exit() {
+	echo "$1" >&2
+	exit $2
+}
+
+[ "$(id -u)" != "0" ] && err_and_exit "[ERROR] $0 must be run as root" 1
+[ $# -lt 4 ]          && err_and_exit "[USAGE] $0 USERNAME NEW-UID NEW-GID command(s)" 2
+
 export OLDUID=$(id -u "$1")
 export OLDGID=$(id -g "$1")
 
-#echo "remapuser: $OLDUID:$OLDGID -> $2:$3"
+if [ "$OLDUID" != "$2" ] || [ "$OLDGID" != "$3" ]; then
+	#echo "remapuser: $OLDUID:$OLDGID -> $2:$3"
 
-groupmod -g "$3" "$1"         >/dev/null 2>&1
-usermod  -u "$2" -g "$3" "$1" >/dev/null 2>&1
+	[ "$OLDGID" != "$3" ] && groupmod -g "$3" "$1"         >/dev/null
+	[ "$OLDUID" != "$2" ] && usermod  -u "$2" -g "$3" "$1" >/dev/null
 
-## -xdev is important to prevent find from processing mounts
-find / -xdev \( -uid "$OLDUID" -exec chown -h "$2" {} \; \) , \
-             \( -gid "$OLDGID" -exec chgrp -h "$3" {} \; \)
+	## -xdev is important to prevent find from processing mounts
+	find / -xdev \( -uid "$OLDUID" -exec chown -h "$2" {} \; \) , \
+	             \( -gid "$OLDGID" -exec chgrp -h "$3" {} \; \)
+fi
 
 GIVEN_UNAME="$1"
 shift 3
+
+set +e
+
 exec setuser "$GIVEN_UNAME" "$@"
+
