@@ -58,26 +58,23 @@ cd "$TESTDIR"
 TMP=$OUID-$OGID
 
 mkdir dir-root
-mkdir dir-9999-9999
 mkdir dir-$TMP
 touch dir-root/file-root
-touch dir-9999-9999/file-9999-9999
 touch dir-$TMP/file-$TMP
-chown -R 9999:9999 dir-9999-9999
 chown -R $OUID:$OGID dir-$TMP
 
 chmod 700 dir-root/file-root
-chmod 700 dir-9999-9999/file-9999-9999
 chmod 700 dir-$TMP/file-$TMP
 
 echo "### produced testdata:"
 ls -lan
 
-## IMPORTANT NOTE: don't map into $HOME if your external data hold files owned
-#                  by UID 9999. This files will be automatically changed to the
-#                  new user by the system when calling 'usermod -u'
+# IMPORTANT NOTE: 
+#
+# don't bind mount anything into $HOME! This files will be automatically changed 
+# to the new user by the system when calling 'usermod -u'
 docker run -ti --rm -v "$TESTDIR:/test" "$(cat '../../REPO_AND_VERSION')" \
-       /sbin/my_init -- /sbin/remapuser app $OUID $OGID \
+       my_init -- remapuser app $OUID $OGID \
        bash -c 'echo "### internal user:"; id; cd /test; echo "### content after mount:"; ls -lan; rm -rf *; echo "### content after rm:"; ls -lan'
 
 echo "### after docker run:"
@@ -100,7 +97,6 @@ outResult () {
   echo -n " "
 }
 
-
 testDirExists () {
   if [ -d $1 ]; then
      outResult $2
@@ -121,10 +117,8 @@ testFileExists () {
 }
 
 testDirExists  dir-root                     "$PASS" "$FAIL"
-testDirExists  dir-9999-9999                "$PASS" "$FAIL"
 testDirExists  dir-$TMP                     "$FAIL" "$PASS"
 testFileExists dir-root/file-root           "$PASS" "$FAIL"
-testFileExists dir-9999-9999/file-9999-9999 "$PASS" "$FAIL"
 testFileExists dir-$TMP/file-$TMP           "$FAIL" "$PASS"
 
 cd - >/dev/null 2>&1
