@@ -65,7 +65,7 @@ docker run -ti --rm -v "$(pwd):/project" a-cool-builder-image:1.0.0 \
 
 In almost all cases this will fail completely, because user 'app' has uid/gid of 9999/9999 which will probably have no write access to the current working directory. And what's a compiler/build environment good for, when it cannot produce some output? ;)
 
-**UPDATE:** user app uses now (v1.1.0) uid 1000 and gid 1000, so the above run may execute without problems on may systems. Nevertheless these settings may be not correct for your system.
+**UPDATE:** user app uses now (v1.1.0) uid 1000 and gid 1000, so the above run may execute without problems on many systems. Nevertheless these settings may be not correct for your system.
 
 That's where this second extension comes into play. All it does is to reconfigure the internal user that it matches a given uid/gid combination. So let's try again:
 
