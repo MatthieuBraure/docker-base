@@ -83,28 +83,49 @@ docker run -ti --rm -v "$TESTDIR:/test" "$(cat '../../REPO_AND_VERSION')" \
 echo "### after docker run:"
 ls -lan
 
+PASS="[PASS]"
+FAIL="[FAIL]"
+
+outResult () {
+  tput bold
+  if [ $1 = "$PASS" ]; then
+    tput setaf 2
+    tput setab 0
+  else
+    tput setaf 1   
+    tput setab 0
+  fi
+  echo -n "$1"
+  tput sgr0
+  echo -n " "
+}
+
+
 testDirExists () {
   if [ -d $1 ]; then
-     echo "$2 $1 not deleted" 1>&2
+     outResult $2
+     echo "$1 not deleted" 1>&2
   else
-     echo "$3 $1 deleted" 1>&2
+     outResult $3
+     echo "$1 deleted" 1>&2
   fi
 }
 testFileExists () {
   if [ -f $1 ]; then
-     echo "$2 $1 not deleted" 1>&2
+     outResult $2
+     echo "$1 not deleted" 1>&2
   else
-     echo "$3 $1 deleted" 1>&2
+     outResult $3
+     echo "$1 deleted" 1>&2
   fi
 }
 
-testDirExists  dir-root                     "[PASS]" "[FAIL]"
-testDirExists  dir-9999-9999                "[PASS]" "[FAIL]"
-testDirExists  dir-$TMP                     "[FAIL]" "[PASS]"
-testFileExists dir-root/file-root           "[PASS]" "[FAIL]"
-testFileExists dir-9999-9999/file-9999-9999 "[PASS]" "[FAIL]"
-testFileExists dir-$TMP/file-$TMP           "[FAIL]" "[PASS]"
+testDirExists  dir-root                     "$PASS" "$FAIL"
+testDirExists  dir-9999-9999                "$PASS" "$FAIL"
+testDirExists  dir-$TMP                     "$FAIL" "$PASS"
+testFileExists dir-root/file-root           "$PASS" "$FAIL"
+testFileExists dir-9999-9999/file-9999-9999 "$PASS" "$FAIL"
+testFileExists dir-$TMP/file-$TMP           "$FAIL" "$PASS"
 
 cd - >/dev/null 2>&1
 rm -rf "$TESTDIR"
-
