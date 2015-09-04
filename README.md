@@ -10,7 +10,7 @@
 
 You can use it as a base for your own Docker images.
 
-sys42/docker-base is available for pulling from [the Docker registry](https://hub.docker.com/r/sys42/docker-base/)!
+sys42/docker-base is available for pulling from [the Docker registry](https://hub.docker.com/r/sys42/docker-base/).
 
 -----------------------------------------------------------------------
 
@@ -35,18 +35,18 @@ So here we are:
 setting  | value
 -------- | -----
 username | app
-uid      | 9999
+uid      | 1000
 group    | app
-gid      | 9999
+gid      | 1000
 password | -- none set ---
 home dir | /home/app
 
 **example usage:**
 
 ```shell
-## starts a container in interactive mode and removes it when done 
+## starts a container in interactive mode and with running init system and removes it when done 
 docker run -ti --rm sys42/docker-base:1.0.0 \
-       /sbin/my_init -- /sbin/setuser app bash 
+       my_init -- setuser app bash 
 ```
 
 ### Extension 2: Dynamic UID/GID re-mapping during container startup
@@ -60,32 +60,31 @@ By mounting the project directory into the container, you are ready to go. Let's
 ```shell
 ## starts a container, mounts current directory to /project and executes make as user app
 docker run -ti --rm -v "$(pwd):/project" a-cool-builder-image:1.0.0 \
-       /sbin/my_init -- /sbin/setuser app bash -c "cd /project; make"
+       my_init -- setuser app bash -c "cd /project; make"
 ```
 
 In almost all cases this will fail completely, because user 'app' has uid/gid of 9999/9999 which will probably have no write access to the current working directory. And what's a compiler/build environment good for, when it cannot produce some output? ;)
 
+**UPDATE:** user app uses now (v1.1.0) uid 1000 and gid 1000, so the above run may execute without problems on may systems. Nevertheless these settings may be not correct for your system.
+
 That's where this second extension comes into play. All it does is to reconfigure the internal user that it matches a given uid/gid combination. So let's try again:
 
 ```shell
-## fetching uid/gid of user executing this
-NEW_UID=§(id -u)
-NEW_GID=$(id -g)
 ## starts a container, mounts current directory to /project, changes uid/gid of
 ## user app to match external user and executes make as user app
 docker run -ti --rm -v "$(pwd):/project" a-cool-builder-image:1.0.0 \
-       /sbin/my_init -- /sbin/remapuser app $NEW_UID $NEW_GID bash -c "cd /project; make"
+       my_init -- remapuser app $(id -u) $(id -g) bash -c "cd /project; make"
 ```
 
 Voila! Mission accomplished. 
 
-**IMPORTANT NOTE:**
+**IMPORTANT NOTES:**
 
 The re-mapping feature is based on command `usermod`. This command automatically remaps files in the home directory and below which belongs to the user to match the new uid. This can lead to very unexpected file modifications when you mount external volumes below the home directory!
 
-Of course its not very likely that files get modified, because the internal user app has an uid of 9999 by default (normally not used). But for different setups of the host this may become problematic.
-
 **LESSION LEARNED:** Never ever mount external volumes into (below) a home directory! (better to be on the safe side ;)
+
+Additionally: user app is generated with **NO PASSWORD** set.
 
 
 ### Testing
