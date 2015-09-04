@@ -40,6 +40,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+#
 ################################################################################
 
 if [ "$(id -u)" != "0" ]; then
@@ -52,14 +53,14 @@ fi
 export OLDUID=$(id -u "$1")
 export OLDGID=$(id -g "$1")
 
-echo "remapuser: $OLDUID:$OLDGID -> $2:$3" 
+#echo "remapuser: $OLDUID:$OLDGID -> $2:$3"
 
-groupmod -g $3 "$1"       >/dev/null 2>&1
-usermod  -u $2 -g $3 "$1" >/dev/null 2>&1
+groupmod -g "$3" "$1"         >/dev/null 2>&1
+usermod  -u "$2" -g "$3" "$1" >/dev/null 2>&1
 
 ## -xdev is important to prevent find from processing mounts
-find / -xdev \( -uid $OLDUID -exec chown -h $2 {} \; \) , \
-             \( -gid $OLDGID -exec chgrp -h $3 {} \; \)
+find / -xdev \( -uid "$OLDUID" -exec chown -h "$2" {} \; \) , \
+             \( -gid "$OLDGID" -exec chgrp -h "$3" {} \; \)
 
 GIVEN_UNAME="$1"
 shift 3
